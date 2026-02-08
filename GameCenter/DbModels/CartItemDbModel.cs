@@ -9,5 +9,6 @@
         public int Quantity { get; set; }
         public decimal TotalPrice => ProductPrice * Quantity;
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+        public UserCartDbModel? UserCart { get; set; }
     }
 }

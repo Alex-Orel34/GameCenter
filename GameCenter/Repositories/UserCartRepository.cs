@@ -1,10 +1,19 @@
-﻿using CartService.IRepositories;
+﻿using CartService.DbModels;
+using CartService.IRepositories;
 using GameCenter.DbModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameCenter.Repositories
 {
     public class UserCartRepository : IUserCartRepository
     {
+        private readonly CartServiceDbContext _context;
+
+        public UserCartRepository(CartServiceDbContext context)
+        {
+            _context = context;
+        }
+
         public Task<UserCartDbModel> CreateUserCartAsync(UserCartDbModel cart)
         {
             throw new NotImplementedException();

@@ -7,46 +7,57 @@ using GameCenter.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+
 builder.Services.AddControllers();
 
-// Настройка Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "CartService API",
-        Version = "v1",
-        Description = "API для управления корзиной"
-    });
-});
+builder.Services.AddSwaggerGen();
 
-// Настройка PostgreSQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<CartServiceDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "cart");
+    }));
 
-// Регистрация репозитория
 builder.Services.AddScoped<ICartRepository, CartRepository>();
-
-// Регистрация сервиса
 builder.Services.AddScoped<IUserCartRepository, UserCartRepository>();
 
-// Регистрация сервиса корзины
-builder.Services.AddScoped<ICartService, CartService>();
+// builder.Services.AddScoped<ICartService, CartService.Services.CartService>();
 
-// Настройка пайплайна
+var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Training Platform API v1");
-        c.RoutePrefix = string.Empty; // Swagger UI будет доступен по корневому пути
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CartService API v1");
+        c.RoutePrefix = string.Empty;
     });
 }
 
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
 app.MapGet("/", () => "Hello World!");
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<CartServiceDbContext>();
+    try
+    {
+        dbContext.Database.ExecuteSqlRaw("CREATE SCHEMA IF NOT EXISTS cart;");
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating or initializing the database.");
+    }
+}
 
 app.Run();
