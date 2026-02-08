@@ -9,5 +9,6 @@ namespace CartService.IRepositories
         Task<UserCartDbModel> DeleteUserCartAsync(int cardId, int userId);
         Task<UserCartDbModel> CreateUserCartAsync(UserCartDbModel cart);
         Task<UserCartDbModel> UpdateUserCartAsync(int id, CartItemDbModel item);
+        Task UpdateCartTotalsAsync(int cartId, int countOfItems, decimal totalCartPrice);
     }
 }

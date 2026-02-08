@@ -78,14 +78,13 @@ namespace GameCenter.Repositories
             if (existingItem != null)
             {
                 existingItem.Quantity = item.Quantity;
-                existingItem.TotalPrice = existingItem.ItemPrice * existingItem.Quantity;
+                existingItem.TotalPrice = item.TotalPrice;
                 existingItem.UpdatedAt = DateTime.UtcNow;
             }
             else
             {
                 item.UserCartId = id;
                 item.CreatedAt = DateTime.UtcNow;
-                item.TotalPrice = item.TotalPrice;
                 _context.CartItems.Add(item);
             }
             cart.UpdatedAt = DateTime.UtcNow;
@@ -95,6 +94,19 @@ namespace GameCenter.Repositories
             await _context.Entry(cart).Collection(c => c.CartItems).LoadAsync();
             
             return cart;
+        }
+
+        public async Task UpdateCartTotalsAsync(int cartId, int countOfItems, decimal totalCartPrice)
+        {
+            var cart = await _context.Carts.FindAsync(cartId);
+            if (cart == null)
+                throw new InvalidOperationException($"Cart with id {cartId} not found");
+
+            cart.CountOfItems = countOfItems;
+            cart.TotalCartPrrice = totalCartPrice;
+            cart.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
         }
     }
 }

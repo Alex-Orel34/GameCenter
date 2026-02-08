@@ -1,6 +1,9 @@
+using CartService.Clients;
 using CartService.DbModels;
+using CartService.IClients;
 using CartService.IRepositories;
 using CartService.IServices;
+using CartService.Options;
 using CartService.Services;
 using GameCenter.IRepositories;
 using GameCenter.Repositories;
@@ -25,7 +28,24 @@ builder.Services.AddDbContext<CartServiceDbContext>(options =>
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IUserCartRepository, UserCartRepository>();
 
-// builder.Services.AddScoped<ICartService, CartService.Services.CartService>();
+builder.Services.Configure<ProductServiceOptions>(
+    builder.Configuration.GetSection(ProductServiceOptions.SectionName));
+
+builder.Services.AddHttpClient<IProductServiceClient, ProductServiceClient>(client =>
+{
+    var options = builder.Configuration.GetSection(ProductServiceOptions.SectionName)
+        .Get<ProductServiceOptions>() ?? new ProductServiceOptions();
+    client.BaseAddress = new Uri(options.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+});
+
+// Регистрация подсервисов
+builder.Services.AddScoped<CartService.Services.CartItemService>();
+builder.Services.AddScoped<CartService.Services.CartTotalsService>();
+builder.Services.AddScoped<CartService.Services.CartMappingService>();
+
+// Регистрация основного сервиса
+builder.Services.AddScoped<ICartService, CartService.Services.CartService>();
 
 var app = builder.Build();
 
