@@ -1,6 +1,6 @@
-﻿namespace GameCenter.IServices
+﻿namespace CartService.IServices
 {
-    public class ICartService
+    public interface ICartService
     {
     }
 }
