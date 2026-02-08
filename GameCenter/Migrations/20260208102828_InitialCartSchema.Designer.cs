@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CartService.Migrations
 {
     [DbContext(typeof(CartServiceDbContext))]
-    [Migration("20260208102053_InitialCartSchema")]
+    [Migration("20260208102828_InitialCartSchema")]
     partial class InitialCartSchema
     {
         /// <inheritdoc />
