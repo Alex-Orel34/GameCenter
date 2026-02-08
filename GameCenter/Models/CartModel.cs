@@ -1,6 +1,6 @@
 ﻿namespace GameCenter.Models
 {
-    public class CartItemModel
+    public class CartModel
     {
     }
 }
