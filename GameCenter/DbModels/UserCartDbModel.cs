@@ -5,7 +5,7 @@
         public int UserId { get; set; }
         public int ItemId {  get; set; }
         public int CountOfItems { get; set; }
-        public decimal TotalCartPrrice { get; set; }
+        public decimal TotalCartPrrice { get; set; } = 0;
         public List<CartItemDbModel> CartItems { get; set; }
     }
 }

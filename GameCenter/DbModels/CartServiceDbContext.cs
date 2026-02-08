@@ -40,9 +40,8 @@ namespace CartService.DbModels
                 entity.Property(e => e.UserCartId).IsRequired();
                 entity.Property(e => e.ProductId).IsRequired();
                 entity.Property(e => e.Quantity).IsRequired();
-                entity.Property(e => e.ProductPrice).IsRequired()
+                entity.Property(e => e.ItemPrice).IsRequired()
                     .HasColumnType("decimal(18,2)");
-                entity.Property(e => e.AddedAt).IsRequired();
 
                 entity.Ignore(e => e.TotalPrice);
             });

@@ -13,26 +13,55 @@ namespace GameCenter.Repositories
         {
             _context = context;
         }
-        public Task<CartItemDbModel> AddItemAsync(CartItemDbModel item)
+        public async Task<CartItemDbModel> AddItemAsync(CartItemDbModel item)
         {
-            throw new NotImplementedException();
+            _context.CartItems.Add(item);
+            await _context.SaveChangesAsync();
+            return item;
         }
 
-        public Task<CartItemDbModel> DeleteItemByIdAsync(int id)
+        public async Task<bool> DeleteItemByIdAsync(int id, CartItemDbModel item)
         {
-            throw new NotImplementedException();
+            var existingItem = await _context.CartItems.FirstOrDefaultAsync(i => i.Id == id);
+
+            if (existingItem is null)
+                return false;
+
+            _context.CartItems.Remove(existingItem);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public Task<CartItemDbModel> GetItemByIdAsync(int id) => _context.CartItems.FirstOrDefaultAsync(c => c.Id == id);
-
-        public Task<CartItemDbModel> GetItemsFromCartByCartIdAsync(int id)
+        public async Task<CartItemDbModel> GetItemByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var item = await _context.CartItems.FirstOrDefaultAsync(i => i.Id == id);
+            if (item is null)
+                throw new InvalidOperationException($"Cart item with id {id} not found");
+            return item;
         }
 
-        public Task<CartItemDbModel> UpdateItemByIdAsync(int id)
+        public async Task<CartItemDbModel> GetItemsFromCartByCartIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var item = await _context.CartItems.FirstOrDefaultAsync(i => i.UserCartId == id);
+            if (item is null)
+                throw new InvalidOperationException($"Cart item with UserCartId {id} not found");
+            return item;
+        }
+
+        public async Task<CartItemDbModel> UpdateItemByIdAsync(int id, CartItemDbModel item)
+        {
+            var existingItem = await _context.CartItems.FirstOrDefaultAsync(i => i.Id == id);
+            if (existingItem is null)
+                throw new InvalidOperationException($"Cart item with id {id} not found");
+
+            existingItem.ItemName = item.ItemName;
+            existingItem.ItemPrice = item.ItemPrice;
+            existingItem.Quantity = item.Quantity;
+            existingItem.TotalPrice = item.TotalPrice;
+            existingItem.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return existingItem;
         }
     }
 }
