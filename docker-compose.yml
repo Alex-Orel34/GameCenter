@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: gamecenter_postgres
+    environment:
+      POSTGRES_DB: GameCenter
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gamecenter-network
+
+  cartservice:
+    build:
+      context: .
+      dockerfile: GameCenter/Dockerfile
+    container_name: gamecenter_app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=GameCenter;Username=postgres;Password=
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gamecenter-network
+
+volumes:
+  postgres_data:
+
+networks:
+  gamecenter-network:
+    driver: bridge
