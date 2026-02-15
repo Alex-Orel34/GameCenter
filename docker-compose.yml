@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: GameCenter
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qwer1234
+      POSTGRES_PASSWORD: 
     ports:
       - "5432:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=GameCenter;Username=postgres;Password=qwer1234
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=GameCenter;Username=postgres;Password=
     ports:
       - "8080:8080"
     depends_on:
